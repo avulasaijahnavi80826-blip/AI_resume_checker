@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillMatch — Resume to Role</title>
+<style>
+:root{
+  --bg:#FFFCF9; --panel:#FFFFFF; --panel2:#FBF3EA; --line:#EBE0D2;
+  --text:#000000; --muted:#000000; --mint:#E06A2C; --mint-dim:#FBDDC5;
+  --amber:#C97F1F; --red:#C7413A; --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  --mono: ui-monospace,SFMono-Regular,"SF Mono",Consolas,monospace;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+body,h1,h2,h4,input,textarea,select,button,span,div{font-weight:700}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);height:100%;}
+header{position:sticky;top:0;z-index:5;background:rgba(255,252,249,.92);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);padding:14px 20px calc(14px + env(safe-area-inset-top,0px));
+  padding-top:calc(14px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px}
+header .mark{width:9px;height:9px;background:var(--mint);border-radius:2px}
+header h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.2px}
+header span{color:var(--muted);font-size:13px}
+main{max-width:1180px;margin:0 auto;padding:22px 20px 60px;display:grid;grid-template-columns:360px 1fr;gap:20px}
+@media (max-width:880px){main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.col-left{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto}
+@media (max-width:880px){.col-left{position:static;max-height:none}}
+h2{font-size:13px;text-transform:none;color:var(--muted);margin:0 0 10px;font-weight:500}
+.samples{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.samples button{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:12px;
+  padding:6px 10px;border-radius:6px;cursor:pointer}
+.samples button:hover{border-color:var(--mint)}
+textarea{width:100%;min-height:140px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  color:var(--text);padding:10px;font-size:13px;resize:vertical;font-family:var(--font)}
+.charcount{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+.drop{border:1px dashed var(--line);border-radius:8px;padding:14px;text-align:center;color:var(--muted);
+  font-size:12px;margin-bottom:10px;cursor:pointer}
+.drop.drag{border-color:var(--mint);color:var(--mint)}
+input[type=file]{display:none}
+button.primary{width:100%;margin-top:12px;background:var(--mint);color:#FFFFFF;border:none;border-radius:8px;
+  padding:10px;font-weight:600;font-size:13px;cursor:pointer}
+button.primary:disabled{opacity:.4;cursor:default}
+.profile-summary{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.stat-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.stat-row b{color:var(--mint);font-family:var(--mono)}
+.skillcat{margin-top:10px}
+.skillcat .lbl{font-size:11px;color:var(--muted);margin-bottom:5px}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-family:var(--mono);font-size:11px;background:var(--panel2);border:1px solid var(--line);
+  padding:3px 7px;border-radius:5px;display:flex;align-items:center;gap:5px}
+.tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0;line-height:1}
+.addskill{display:flex;gap:6px;margin-top:8px}
+.addskill input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);
+  padding:6px 8px;font-size:12px}
+.addskill button{background:var(--panel2);border:1px solid var(--line);color:var(--mint);border-radius:6px;
+  padding:6px 10px;font-size:12px;cursor:pointer}
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:14px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;align-items:center}
+.filters label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.filters select,.filters input[type=text]{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:6px;padding:6px 8px;font-size:12px}
+.filters input[type=range]{width:120px}
+.jobcount{color:var(--muted);font-size:12px;margin-left:auto}
+.job{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;
+  cursor:pointer}
+.job:hover{border-color:#D8CDBC}
+.job-top{display:flex;justify-content:space-between;gap:14px}
+.job-title{font-weight:600;font-size:15px}
+.job-meta{color:var(--muted);font-size:12px;margin-top:3px}
+.score{font-family:var(--mono);font-size:22px;font-weight:700;text-align:right}
+.score-lbl{font-size:10px;color:var(--muted);text-align:right}
+.bar{height:4px;background:var(--panel2);border-radius:2px;margin:10px 0;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--mint)}
+.job-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.job-tags .tag.miss{border-color:var(--red);color:var(--red)}
+.job-tags .tag.miss.pref{border-color:var(--amber);color:var(--amber)}
+.job-tags .tag.have{border-color:var(--mint-dim);color:var(--mint)}
+.detail{border-top:1px solid var(--line);margin-top:12px;padding-top:12px;font-size:12px;color:var(--muted)}
+.detail h4{color:var(--text);font-size:12px;margin:10px 0 5px}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<header><div class="mark"></div><h1>SkillMatch</h1><span>resume → role fit, in your browser</span></header>
+<main>
+  <div class="panel col-left">
+    <h2>1 · Bring in a resume</h2>
+    <div class="samples" id="samples"></div>
+    <div class="drop" id="drop">Drop a .txt / .md file here, or click to choose one</div>
+    <input type="file" id="file" accept=".txt,.md">
+    <textarea id="resumeText" placeholder="…or paste resume text directly"></textarea>
+    <div class="charcount" id="charcount">0 characters</div>
+    <button class="primary" id="analyzeBtn">Extract skills</button>
+
+    <div class="profile-summary" id="summary" style="display:none">
+      <div class="stat-row"><span>Experience (est.)</span><b id="expYears">–</b></div>
+      <div class="stat-row"><span>Seniority</span><b id="seniority">–</b></div>
+      <div class="stat-row"><span>Skills found</span><b id="skillCount">–</b></div>
+      <div id="catList"></div>
+      <div class="addskill">
+        <input id="newSkill" placeholder="add a skill…">
+        <button id="addSkillBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="filters">
+      <div><label>Min match</label><input type="range" id="minMatch" min="0" max="100" value="0"><span id="minMatchVal" style="font-size:12px">0%</span></div>
+      <div><label>Seniority</label><select id="fSeniority"><option value="">Any</option></select></div>
+      <div><label>Work type</label><select id="fWork"><option value="">Any</option><option>Remote</option><option>Hybrid</option><option>On-site</option></select></div>
+      <div><label>Department</label><select id="fDept"><option value="">Any</option></select></div>
+      <div><label>Keyword</label><input type="text" id="fKeyword" placeholder="e.g. Kubernetes"></div>
+      <div class="jobcount" id="jobCount"></div>
+    </div>
+    <div id="jobs"></div>
+  </div>
+</main>
+
+<script>
+// ---------- Taxonomy ----------
+const TAXONOMY = {
+ "k8s":"Kubernetes","kubernetes":"Kubernetes","ts":"TypeScript","typescript":"TypeScript",
+ "py":"Python","python":"Python","js":"JavaScript","javascript":"JavaScript","node":"Node.js","node.js":"Node.js","nodejs":"Node.js",
+ "react":"React","react.js":"React","reactjs":"React","vue":"Vue.js","angular":"Angular","next.js":"Next.js","nextjs":"Next.js",
+ "html":"HTML","css":"CSS","tailwind":"Tailwind CSS","sass":"Sass",
+ "java":"Java","golang":"Go","go":"Go","rust":"Rust","c++":"C++","cpp":"C++","c#":"C#","csharp":"C#","php":"PHP","ruby":"Ruby",
+ "swift":"Swift","kotlin":"Kotlin","scala":"Scala",
+ "django":"Django","flask":"Flask","fastapi":"FastAPI","spring":"Spring Boot","express":"Express.js",".net":"ASP.NET",
+ "rest":"REST APIs","restful":"REST APIs","graphql":"GraphQL","grpc":"gRPC","microservices":"Microservices",
+ "aws":"AWS","gcp":"Google Cloud","azure":"Azure","docker":"Docker","terraform":"Terraform","ansible":"Ansible",
+ "jenkins":"Jenkins","ci/cd":"CI/CD","cicd":"CI/CD","devops":"DevOps","sre":"Site Reliability Eng.","linux":"Linux",
+ "sql":"SQL","postgres":"PostgreSQL","postgresql":"PostgreSQL","mysql":"MySQL","mongodb":"MongoDB","mongo":"MongoDB",
+ "redis":"Redis","kafka":"Apache Kafka","rabbitmq":"RabbitMQ","elasticsearch":"Elasticsearch",
+ "snowflake":"Snowflake","bigquery":"BigQuery","spark":"Apache Spark","hadoop":"Hadoop","airflow":"Airflow",
+ "ml":"Machine Learning","machine learning":"Machine Learning","deep learning":"Deep Learning","nlp":"NLP",
+ "llm":"LLMs","llms":"LLMs","tensorflow":"TensorFlow","pytorch":"PyTorch","scikit-learn":"scikit-learn","sklearn":"scikit-learn",
+ "pandas":"Pandas","numpy":"NumPy","computer vision":"Computer Vision","data science":"Data Science",
+ "git":"Git","github":"Git","system design":"System Design","architecture":"System Architecture"
+};
+const CATEGORY = {
+ "Python":"Languages","JavaScript":"Languages","TypeScript":"Languages","Java":"Languages","Go":"Languages","Rust":"Languages",
+ "C++":"Languages","C#":"Languages","PHP":"Languages","Ruby":"Languages","Swift":"Languages","Kotlin":"Languages","Scala":"Languages",
+ "React":"Frontend","Vue.js":"Frontend","Angular":"Frontend","Next.js":"Frontend","HTML":"Frontend","CSS":"Frontend","Tailwind CSS":"Frontend","Sass":"Frontend",
+ "Node.js":"Backend & APIs","Django":"Backend & APIs","Flask":"Backend & APIs","FastAPI":"Backend & APIs","Spring Boot":"Backend & APIs",
+ "Express.js":"Backend & APIs","ASP.NET":"Backend & APIs","REST APIs":"Backend & APIs","GraphQL":"Backend & APIs","gRPC":"Backend & APIs","Microservices":"Architecture",
+ "AWS":"Cloud & DevOps","Google Cloud":"Cloud & DevOps","Azure":"Cloud & DevOps","Docker":"Cloud & DevOps","Kubernetes":"Cloud & DevOps",
+ "Terraform":"Cloud & DevOps","Ansible":"Cloud & DevOps","Jenkins":"Cloud & DevOps","CI/CD":"Cloud & DevOps","DevOps":"Cloud & DevOps",
+ "Site Reliability Eng.":"Cloud & DevOps","Linux":"Cloud & DevOps",
+ "SQL":"Databases","PostgreSQL":"Databases","MySQL":"Databases","MongoDB":"Databases","Redis":"Databases","Apache Kafka":"Databases",
+ "RabbitMQ":"Databases","Elasticsearch":"Databases","Snowflake":"Databases","BigQuery":"Databases","Apache Spark":"Databases","Hadoop":"Databases","Airflow":"Databases",
+ "Machine Learning":"AI & Data Science","Deep Learning":"AI & Data Science","NLP":"AI & Data Science","LLMs":"AI & Data Science",
+ "TensorFlow":"AI & Data Science","PyTorch":"AI & Data Science","scikit-learn":"AI & Data Science","Pandas":"AI & Data Science",
+ "NumPy":"AI & Data Science","Computer Vision":"AI & Data Science","Data Science":"AI & Data Science",
+ "Git":"Architecture","System Design":"Architecture","System Architecture":"Architecture"
+};
+
+// ---------- Sample profiles ----------
+const SAMPLES = {
+"Senior Full-Stack Engineer": `Senior Full-Stack Engineer with 8 years of experience building scalable web applications.
+Led migration of a monolith to microservices using Node.js, Express, and Docker on AWS (ECS, Lambda, RDS).
+Built React/TypeScript front-ends with GraphQL APIs. Owns CI/CD pipelines (Jenkins) and Kubernetes deployments.
+Proficient in PostgreSQL, Redis, and system design for high-traffic services. Mentors junior engineers.`,
+"AI/ML Specialist": `AI/ML Specialist, 5 years experience. Builds NLP and computer vision models using PyTorch and TensorFlow.
+Strong Python background with Pandas, NumPy, scikit-learn. Deployed LLM-powered features to production on GCP.
+Experience with Spark for large-scale data pipelines and Airflow for orchestration. Familiar with Docker and REST APIs.`,
+"Cloud DevOps Engineer": `Cloud DevOps Engineer with 6 years managing infrastructure on AWS and Azure.
+Expert in Terraform, Ansible, Kubernetes (K8s), and Docker. Built CI/CD pipelines with Jenkins and GitHub Actions.
+Strong Linux administration and site reliability engineering background. Some Python scripting for automation.`,
+"Junior Web Developer": `Junior Web Developer, 1 year of professional experience plus bootcamp training.
+Built responsive websites with HTML, CSS, JavaScript, and React. Learning Node.js and basic SQL.
+Familiar with Git and REST APIs. Eager to grow into a full-stack role.`
+};
+
+// ---------- Job data ----------
+const JOBS = [
+ {title:"Senior Backend Engineer",dept:"Engineering",seniority:"Senior",work:"Remote",salary:"$150k–$190k",
+  required:["Python","REST APIs","PostgreSQL","System Design","Docker"],preferred:["Kubernetes","AWS","Redis"]},
+ {title:"Full-Stack Developer",dept:"Engineering",seniority:"Mid-Level",work:"Hybrid",salary:"$110k–$140k",
+  required:["React","Node.js","JavaScript","SQL"],preferred:["TypeScript","GraphQL","AWS"]},
+ {title:"Machine Learning Engineer",dept:"Data & AI",seniority:"Senior",work:"Remote",salary:"$160k–$210k",
+  required:["Python","Machine Learning","PyTorch","Data Science"],preferred:["LLMs","Computer Vision","Spark"]},
+ {title:"DevOps Engineer",dept:"Infrastructure",seniority:"Mid-Level",work:"On-site",salary:"$125k–$155k",
+  required:["Docker","Kubernetes","CI/CD","Linux"],preferred:["Terraform","AWS","Ansible"]},
+ {title:"Frontend Engineer",dept:"Engineering",seniority:"Mid-Level",work:"Remote",salary:"$105k–$135k",
+  required:["React","JavaScript","CSS","HTML"],preferred:["TypeScript","Next.js","Tailwind CSS"]},
+ {title:"Junior Software Engineer",dept:"Engineering",seniority:"Entry-Level",work:"Hybrid",salary:"$75k–$95k",
+  required:["JavaScript","Git","HTML","CSS"],preferred:["React","SQL","Node.js"]},
+ {title:"Data Engineer",dept:"Data & AI",seniority:"Senior",work:"Remote",salary:"$140k–$175k",
+  required:["Python","SQL","Apache Spark","Airflow"],preferred:["Snowflake","BigQuery","AWS"]},
+ {title:"Site Reliability Engineer",dept:"Infrastructure",seniority:"Lead/Staff",work:"On-site",salary:"$170k–$220k",
+  required:["Kubernetes","AWS","Site Reliability Eng.","System Design"],preferred:["Terraform","Go","Microservices"]},
+ {title:"Cloud Solutions Architect",dept:"Infrastructure",seniority:"Lead/Staff",work:"Remote",salary:"$180k–$230k",
+  required:["AWS","Azure","System Architecture","Microservices"],preferred:["Kubernetes","Terraform","Google Cloud"]},
+ {title:"NLP Research Engineer",dept:"Data & AI",seniority:"Senior",work:"Hybrid",salary:"$165k–$205k",
+  required:["Python","NLP","LLMs","PyTorch"],preferred:["Deep Learning","TensorFlow","Data Science"]},
+ {title:"Backend Engineer (Node.js)",dept:"Engineering",seniority:"Entry-Level",work:"Hybrid",salary:"$85k–$105k",
+  required:["Node.js","JavaScript","MongoDB"],preferred:["Express.js","REST APIs","Docker"]},
+ {title:"Platform Engineer",dept:"Infrastructure",seniority:"Senior",work:"Remote",salary:"$155k–$195k",
+  required:["Kubernetes","Docker","CI/CD","Go"],preferred:["Terraform","AWS","Microservices"]}
+];
+
+// ---------- State ----------
+let profile = {skills:new Set(), expYears:0, seniority:"Entry-Level"};
+
+// ---------- Extraction ----------
+function extract(text){
+  const lower = " "+text.toLowerCase().replace(/[^a-z0-9\.\+#\/\s-]/g," ")+" ";
+  const found = new Set();
+  for(const alias in TAXONOMY){
+    const pattern = new RegExp("(^|[^a-z0-9])"+alias.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^a-z0-9]|$)","i");
+    if(pattern.test(lower)) found.add(TAXONOMY[alias]);
+  }
+  const yearMatches = [...text.matchAll(/(\d+)\+?\s*years?/gi)].map(m=>parseInt(m[1]));
+  const expYears = yearMatches.length ? Math.max(...yearMatches) : 0;
+  let seniority = "Entry-Level";
+  const t = text.toLowerCase();
+  if(/lead|staff|principal|architect/.test(t) || expYears>=9) seniority="Lead/Staff";
+  else if(/senior|sr\./.test(t) || expYears>=5) seniority="Senior";
+  else if(expYears>=2) seniority="Mid-Level";
+  return {skills:found, expYears, seniority};
+}
+
+function renderSamples(){
+  const el=document.getElementById("samples");
+  Object.keys(SAMPLES).forEach(name=>{
+    const b=document.createElement("button");
+    b.textContent=name;
+    b.onclick=()=>{document.getElementById("resumeText").value=SAMPLES[name];updateCharcount();};
+    el.appendChild(b);
+  });
+}
+function updateCharcount(){
+  document.getElementById("charcount").textContent = document.getElementById("resumeText").value.length+" characters";
+}
+document.getElementById("resumeText").addEventListener("input",updateCharcount);
+
+document.getElementById("drop").onclick=()=>document.getElementById("file").click();
+document.getElementById("file").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{document.getElementById("resumeText").value=r.result; updateCharcount();};
+  r.readAsText(f);
+};
+["dragover","dragleave","drop"].forEach(evt=>{
+  document.getElementById("drop").addEventListener(evt,e=>{
+    e.preventDefault();
+    document.getElementById("drop").classList.toggle("drag",evt==="dragover");
+    if(evt==="drop" && e.dataTransfer.files[0]){
+      const r=new FileReader();
+      r.onload=()=>{document.getElementById("resumeText").value=r.result; updateCharcount();};
+      r.readAsText(e.dataTransfer.files[0]);
+    }
+  });
+});
+
+document.getElementById("analyzeBtn").onclick=()=>{
+  const text=document.getElementById("resumeText").value;
+  if(!text.trim()) return;
+  const res=extract(text);
+  profile={skills:res.skills, expYears:res.expYears, seniority:res.seniority};
+  renderProfile(); renderJobs();
+};
+
+function renderProfile(){
+  document.getElementById("summary").style.display="block";
+  document.getElementById("expYears").textContent = profile.expYears ? profile.expYears+" yrs" : "n/a";
+  document.getElementById("seniority").textContent = profile.seniority;
+  document.getElementById("skillCount").textContent = profile.skills.size;
+  const byCat={};
+  profile.skills.forEach(s=>{
+    const c=CATEGORY[s]||"Other";
+    (byCat[c]=byCat[c]||[]).push(s);
+  });
+  const el=document.getElementById("catList"); el.innerHTML="";
+  Object.keys(byCat).sort().forEach(cat=>{
+    const div=document.createElement("div"); div.className="skillcat";
+    div.innerHTML = `<div class="lbl">${cat}</div>`;
+    const tags=document.createElement("div"); tags.className="tags";
+    byCat[cat].forEach(s=>{
+      const t=document.createElement("span"); t.className="tag";
+      t.innerHTML = s+' <button data-s="'+s+'">×</button>';
+      tags.appendChild(t);
+    });
+    div.appendChild(tags); el.appendChild(div);
+  });
+  el.querySelectorAll("button[data-s]").forEach(b=>b.onclick=()=>{
+    profile.skills.delete(b.dataset.s); renderProfile(); renderJobs();
+  });
+}
+document.getElementById("addSkillBtn").onclick=()=>{
+  const inp=document.getElementById("newSkill"); const v=inp.value.trim();
+  if(!v) return;
+  const canon = TAXONOMY[v.toLowerCase()] || v;
+  profile.skills.add(canon); inp.value="";
+  renderProfile(); renderJobs();
+};
+
+function score(job){
+  const have = profile.skills;
+  const reqHave = job.required.filter(s=>have.has(s));
+  const prefHave = job.preferred.filter(s=>have.has(s));
+  const reqScore = job.required.length ? reqHave.length/job.required.length : 1;
+  const prefScore = job.preferred.length ? prefHave.length/job.preferred.length : 1;
+  const senRank = {"Entry-Level":0,"Mid-Level":1,"Senior":2,"Lead/Staff":3};
+  const diff = Math.abs((senRank[profile.seniority]||0) - (senRank[job.seniority]||0));
+  const expScore = diff===0?1:diff===1?0.6:0.25;
+  const pct = Math.round((reqScore*0.6 + prefScore*0.2 + expScore*0.2)*100);
+  return {pct, reqHave, reqMiss:job.required.filter(s=>!have.has(s)), prefHave, prefMiss:job.preferred.filter(s=>!have.has(s))};
+}
+
+function populateFilterOptions(){
+  const senEl=document.getElementById("fSeniority"), deptEl=document.getElementById("fDept");
+  [...new Set(JOBS.map(j=>j.seniority))].forEach(s=>{const o=document.createElement("option");o.textContent=s;senEl.appendChild(o);});
+  [...new Set(JOBS.map(j=>j.dept))].forEach(d=>{const o=document.createElement("option");o.textContent=d;deptEl.appendChild(o);});
+}
+["minMatch","fSeniority","fWork","fDept","fKeyword"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",()=>{
+    document.getElementById("minMatchVal").textContent = document.getElementById("minMatch").value+"%";
+    renderJobs();
+  });
+});
+
+let openJob = null;
+function renderJobs(){
+  const min=+document.getElementById("minMatch").value;
+  const sen=document.getElementById("fSeniority").value;
+  const work=document.getElementById("fWork").value;
+  const dept=document.getElementById("fDept").value;
+  const kw=document.getElementById("fKeyword").value.toLowerCase();
+
+  const scored = JOBS.map(j=>({job:j, s:score(j)}))
+    .filter(({job,s})=> s.pct>=min && (!sen||job.seniority===sen) && (!work||job.work===work) && (!dept||job.dept===dept)
+      && (!kw || job.title.toLowerCase().includes(kw) || job.required.concat(job.preferred).some(sk=>sk.toLowerCase().includes(kw))))
+    .sort((a,b)=>b.s.pct-a.s.pct);
+
+  document.getElementById("jobCount").textContent = scored.length+" of "+JOBS.length+" roles";
+  const el=document.getElementById("jobs"); el.innerHTML="";
+  if(!scored.length){ el.innerHTML='<div class="empty">No roles match these filters. Try lowering the match threshold.</div>'; return; }
+
+  scored.forEach(({job,s},i)=>{
+    const card=document.createElement("div"); card.className="job";
+    card.innerHTML = `
+      <div class="job-top">
+        <div><div class="job-title">${job.title}</div>
+        <div class="job-meta">${job.dept} · ${job.seniority} · ${job.work} · ${job.salary}</div></div>
+        <div><div class="score" style="color:${s.pct>=70?'#E06A2C':s.pct>=40?'#C97F1F':'#C7413A'}">${s.pct}%</div>
+        <div class="score-lbl">match</div></div>
+      </div>
+      <div class="bar"><i style="width:${s.pct}%;background:${s.pct>=70?'#E06A2C':s.pct>=40?'#C97F1F':'#C7413A'}"></i></div>
+      <div class="job-tags">
+        ${s.reqHave.map(x=>`<span class="tag have">${x}</span>`).join("")}
+        ${s.reqMiss.map(x=>`<span class="tag miss">${x}</span>`).join("")}
+        ${s.prefMiss.map(x=>`<span class="tag miss pref">${x} (nice-to-have)</span>`).join("")}
+      </div>
+      <div class="detail" style="display:none">
+        <h4>Critical gaps</h4>
+        ${s.reqMiss.length? s.reqMiss.map(x=>`<div>· ${x} — required, not found on resume</div>`).join("") : "<div>None — all required skills matched.</div>"}
+        <h4>Preferred gaps</h4>
+        ${s.prefMiss.length? s.prefMiss.map(x=>`<div>· ${x} — nice-to-have</div>`).join("") : "<div>None.</div>"}
+        <h4>Fastest way to close the biggest gap</h4>
+        <div>${s.reqMiss[0] ? "Focus next on <b style='color:var(--mint)'>"+s.reqMiss[0]+"</b> — it's required here and likely to appear across other roles you're close to." : "You already cover the required skill set for this role."}</div>
+      </div>`;
+    card.onclick=()=>{
+      const d=card.querySelector(".detail");
+      const wasOpen = d.style.display==="block";
+      document.querySelectorAll(".detail").forEach(x=>x.style.display="none");
+      d.style.display = wasOpen ? "none" : "block";
+    };
+    el.appendChild(card);
+  });
+}
+
+renderSamples();
+populateFilterOptions();
+renderJobs();
+</script>
+</body>
+</html>
